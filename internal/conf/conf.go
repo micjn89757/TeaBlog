@@ -16,6 +16,11 @@ import (
 type Config struct{
 	Server 	Server	`mapstructure:"server"`
 	Data 	Data	`mapstructure:"data"`
+	Log 	Log 	`mapstructure:"log"`
+}
+
+type Log struct {
+	Env string	`mapstructure:"env"`
 }
 
 type Server struct {
@@ -47,15 +52,15 @@ type Redis struct {
 }
 
 
-func NewConfig(file string) *Config {
+func NewConfig(filename string) Config {
 	var config Config
 	vp := viper.New()
 	configPath := filepath.Join(util.GetRootPath(), "config")
 	vp.AddConfigPath(configPath) 	// 文件所在目录
-	vp.SetConfigName(file) 			// 文件名
+	vp.SetConfigName(filename) 			// 文件名
 	vp.SetConfigType("yaml") 		// 扩展名
 	
-	configFile := configPath + file + "yaml"  // 配置文件完整路径
+	configFile := configPath + filename + "yaml"  // 配置文件完整路径
 
 	if err := vp.ReadInConfig(); err != nil { // 查找并读取配置文件
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
@@ -83,7 +88,7 @@ func NewConfig(file string) *Config {
 		panic(fmt.Errorf("viper unmarshal err: %s", err))
 	}
 
-	return &config
+	return config
 }
 
 

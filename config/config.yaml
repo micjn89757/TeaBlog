@@ -11,3 +11,5 @@ data:
     dial_timeout: 2s
     read_timeout: 0.4s
     write_timeout: 0.6s
+log:
+  env: development
