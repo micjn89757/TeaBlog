@@ -2,24 +2,62 @@ package conf
 
 import (
 	"fmt"
+	"io"
+	"os"
 	"path/filepath"
+	"strings"
+	"time"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/micjn89757/TeaBlog/pkg/util"
 	"github.com/spf13/viper"
 )
 
-// TODO: 配置可以进行校验
+type Config struct{
+	Server 	Server	`mapstructure:"server"`
+	Data 	Data	`mapstructure:"data"`
+}
 
-func NewConfig(file string) *viper.Viper {
-	config := viper.New()
+type Server struct {
+	Http Http		`mapstructure:"http"`   // 注意字段名要大写，不然viper没有权限解析
+}
+
+type Http struct {
+	Addr 	string 			`mapstructure:"addr"`
+	Timeout time.Duration	`mapstructure:"timeout"`
+}
+
+type Data struct {
+	Postgresql	PG		`mapstructure:"postgresql"`
+	Redis		Redis	`mapstructure:"redis"`
+}
+
+
+type PG struct {
+	Driver	string 		`mapstructure:"driver"`
+	Source 	string		`mapstructure:"source"`
+}
+
+
+type Redis struct {
+	Addr			string			`mapstructure:"addr"`
+	DialTimeout		time.Duration	`mapstructure:"dial_timeout"`
+	ReadTimeout		time.Duration	`mapstructure:"read_timeout"`
+	WriteTimeout	time.Duration	`mapstructure:"write_timeout"`
+}
+
+
+func NewConfig(file string) *Config {
+	var config Config
+	vp := viper.New()
 	configPath := filepath.Join(util.GetRootPath(), "config")
-	config.AddConfigPath(configPath) 	// 文件所在目录
-	config.SetConfigName(file) 			// 文件名
-	config.SetConfigType("yaml") 		// 扩展名
+	vp.AddConfigPath(configPath) 	// 文件所在目录
+	vp.SetConfigName(file) 			// 文件名
+	vp.SetConfigType("yaml") 		// 扩展名
 	
 	configFile := configPath + file + "yaml"  // 配置文件完整路径
 
-	if err := config.ReadInConfig(); err != nil { // 查找并读取配置文件
+	if err := vp.ReadInConfig(); err != nil { // 查找并读取配置文件
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			panic(fmt.Errorf("can not find the config file: %s", err)) // 系统初始化阶段发生任何错误，直接结束进程
 		} else {
@@ -27,7 +65,34 @@ func NewConfig(file string) *viper.Viper {
 		}
 	}
 
-	return config
+	vp.WatchConfig()	// 监听配置文件变化
+	vp.OnConfigChange(func(in fsnotify.Event) { // 配置文件发生变更之后会调用回调函数
+		printStr := &strings.Builder{}
+		printStr.WriteString("config file changed:")
+		printStr.WriteString(in.Name)
+		printStr.WriteByte('\n')
+		io.WriteString(os.Stdout, printStr.String())
+
+		// 重新解析
+		if err := vp.Unmarshal(&config); err != nil {
+			panic(fmt.Errorf("viper unmarshal err: %s", err))
+		}
+	})
+
+	if err := vp.Unmarshal(&config); err != nil {
+		panic(fmt.Errorf("viper unmarshal err: %s", err))
+	}
+
+	return &config
+}
+
+
+func (c *Config) GetServerConfig() *Server {
+	return &c.Server
+}
+
+func (c *Config) GetDataConfig() *Data {
+	return &c.Data
 }
 
 //TODO: Validate 
