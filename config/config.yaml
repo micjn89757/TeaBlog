@@ -5,7 +5,7 @@ server:
 data:
   postgresql:
     driver: postgresql
-    source: root:password@tcp(127.0.0.1:3306)/testdb?parseTime=True
+    source: 
   redis:
     addr: 127.0.0.1:6379
     dial_timeout: 2s

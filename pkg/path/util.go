@@ -1,4 +1,4 @@
-package util
+package path
 
 import (
 	"path/filepath"
@@ -10,7 +10,6 @@ func GetCallerInfo() (string, int) {
 	_, filename, line, _ := runtime.Caller(1) // 0表示调用信息为runtime.Caller， 1表示调用信息为更上一层
 	return filename, line
 }
-
 
 func GetRootPath() string {
 	path, _ := GetCallerInfo()

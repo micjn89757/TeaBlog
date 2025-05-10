@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/micjn89757/TeaBlog/internal/conf"
-	"github.com/micjn89757/TeaBlog/pkg/util"
+	"github.com/micjn89757/TeaBlog/pkg/path"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -19,7 +19,6 @@ func NewLogger(conf conf.Config) *zap.Logger {
 	highPriority := zap.LevelEnablerFunc(func(l zapcore.Level) bool {
 		return l >= zapcore.ErrorLevel
 	})
-
 
 	lowPriority := zap.LevelEnablerFunc(func(l zapcore.Level) bool {
 		return l < zapcore.ErrorLevel
@@ -48,7 +47,6 @@ func NewLogger(conf conf.Config) *zap.Logger {
 	return logger
 }
 
-
 // 日志编码器(development)
 func setDevEncoder() zapcore.Encoder {
 	encoderConfig := zap.NewDevelopmentEncoderConfig()
@@ -58,15 +56,15 @@ func setDevEncoder() zapcore.Encoder {
 	encoderConfig.MessageKey = "msg"
 	encoderConfig.TimeKey = "ts"
 	encoderConfig.StacktraceKey = "stacktrace"
-	encoderConfig.EncodeTime = zapcore.RFC3339TimeEncoder	// 修改时间编码器
+	encoderConfig.EncodeTime = zapcore.RFC3339TimeEncoder // 修改时间编码器
 	return zapcore.NewJSONEncoder(encoderConfig)
 }
 
 // 日志编码器(production)
 func setProductEncoder() zapcore.Encoder {
 	encoderConfig := zap.NewProductionEncoderConfig()
-	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder	// 修改时间编码器
-	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder	// 日志文件中使用大写字母记录日志级别
+	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder   // 修改时间编码器
+	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder // 日志文件中使用大写字母记录日志级别
 	return zapcore.NewJSONEncoder(encoderConfig)
 }
 
@@ -74,15 +72,13 @@ func setProductEncoder() zapcore.Encoder {
 // 日志输出, 根据文件大小进行切割
 func setLogWriter(filename string) zapcore.WriteSyncer {
 	lumberJackLogger := &lumberjack.Logger{
-		Filename: filepath.Join(util.GetRootPath(), "log", filename), 	// 日志文件位置
-		MaxSize: 10,	// 在进行切割之前，日志文件的最大大小(MB)
-		MaxAge: 30,		// 保留旧文件的最大天数
-		MaxBackups: 5,	// 保留旧文件的最大个数
-		Compress: false,	// 是否压缩/归档旧文件
+		Filename:   filepath.Join(path.GetRootPath(), "log", filename), // 日志文件位置
+		MaxSize:    10,                                                 // 在进行切割之前，日志文件的最大大小(MB)
+		MaxAge:     30,                                                 // 保留旧文件的最大天数
+		MaxBackups: 5,                                                  // 保留旧文件的最大个数
+		Compress:   false,                                              // 是否压缩/归档旧文件
 	}
 
 	multiwriter := io.MultiWriter(lumberJackLogger, os.Stdout)
 	return zapcore.AddSync(multiwriter)
 }
-
-
