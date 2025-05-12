@@ -47,9 +47,10 @@ type Redis struct {
 	DialTimeout  time.Duration `mapstructure:"dial_timeout"`
 	ReadTimeout  time.Duration `mapstructure:"read_timeout"`
 	WriteTimeout time.Duration `mapstructure:"write_timeout"`
+	DB           int           `mapstructure:"db"`
 }
 
-func NewConfig(filename string) Config {
+func NewConfig(filename string) *Config {
 	var config Config
 	vp := viper.New()
 	configPath := filepath.Join(path.GetRootPath(), "config")
@@ -85,7 +86,7 @@ func NewConfig(filename string) Config {
 		panic(fmt.Errorf("viper unmarshal err: %s", err))
 	}
 
-	return config
+	return &config
 }
 
 func (c *Config) GetServerConfig() *Server {

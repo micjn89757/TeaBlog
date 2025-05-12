@@ -13,7 +13,7 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-func NewLogger(conf conf.Config) *zap.Logger {
+func NewLogger(conf *conf.Config) *zap.Logger {
 
 	// 定义两种级别
 	highPriority := zap.LevelEnablerFunc(func(l zapcore.Level) bool {
@@ -71,6 +71,7 @@ func setProductEncoder() zapcore.Encoder {
 // TODO: 后续需要转发到Kafka，存到相应的数据库用于分析
 // 日志输出, 根据文件大小进行切割
 func setLogWriter(filename string) zapcore.WriteSyncer {
+	// TODO: lumberjacklogger can't cut log with time
 	lumberJackLogger := &lumberjack.Logger{
 		Filename:   filepath.Join(path.GetRootPath(), "log", filename), // 日志文件位置
 		MaxSize:    10,                                                 // 在进行切割之前，日志文件的最大大小(MB)
