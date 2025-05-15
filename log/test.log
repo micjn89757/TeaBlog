@@ -1,0 +1,2 @@
+{"level":"INFO","ts":"2025-05-15T18:46:01+08:00","caller":"data/data.go:58","msg":"closing the data resource"}
+{"level":"INFO","ts":"2025-05-15T18:49:38+08:00","caller":"data/data.go:58","msg":"closing the data resource"}

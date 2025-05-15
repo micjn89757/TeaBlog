@@ -38,7 +38,7 @@ type Data struct {
 }
 
 type PG struct {
-	Driver string `mapstructure:"driver"`
+	Driver string `mapstructure:"pgx"`
 	Source string `mapstructure:"source"`
 }
 

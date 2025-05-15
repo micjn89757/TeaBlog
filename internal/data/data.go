@@ -28,8 +28,8 @@ func NewData(conf *conf.Config, logger *zap.Logger) (*Data, func(), error) {
 	})
 
 	pgdb, err := gorm.Open(postgres.New(postgres.Config{
-		DSN:        conf.Data.Postgresql.Driver,
-		DriverName: "pgx",
+		DSN: conf.Data.Postgresql.Source,
+		// DriverName: conf.Data.Postgresql.Driver,
 		// PreferSimpleProtocol: true, // disable implicit prepared statement
 	}), &gorm.Config{
 		SkipDefaultTransaction: true, // disable implicit transaction
